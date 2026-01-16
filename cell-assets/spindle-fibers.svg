@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 300">
+    <g stroke="#81ecec" stroke-width="2">
+        <!-- Top centriole -->
+        <circle cx="100" cy="15" r="6" fill="#00cec9"/>
+        <!-- Bottom centriole -->
+        <circle cx="100" cy="285" r="6" fill="#00cec9"/>
+        <!-- Fibers from top -->
+        <line x1="100" y1="25" x2="60" y2="120"/>
+        <line x1="100" y1="25" x2="80" y2="130"/>
+        <line x1="100" y1="25" x2="100" y2="130"/>
+        <line x1="100" y1="25" x2="120" y2="130"/>
+        <line x1="100" y1="25" x2="140" y2="120"/>
+        <!-- Fibers from bottom -->
+        <line x1="100" y1="275" x2="60" y2="180"/>
+        <line x1="100" y1="275" x2="80" y2="170"/>
+        <line x1="100" y1="275" x2="100" y2="170"/>
+        <line x1="100" y1="275" x2="120" y2="170"/>
+        <line x1="100" y1="275" x2="140" y2="180"/>
+    </g>
+</svg>

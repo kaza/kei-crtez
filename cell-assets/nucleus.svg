@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">
+    <!-- Nuclear membrane -->
+    <circle cx="60" cy="60" r="55" fill="#a29bfe" stroke="#6c5ce7" stroke-width="4"/>
+    <!-- Nucleolus -->
+    <circle cx="60" cy="60" r="15" fill="#6c5ce7"/>
+</svg>

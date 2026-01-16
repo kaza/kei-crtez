@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cell Cycle Animation</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            color: white;
+        }
+
+        h1 { margin-bottom: 10px; }
+
+        .phase-label {
+            font-size: 24px;
+            color: #88c0d0;
+            margin-bottom: 20px;
+            position: relative;
+            height: 30px;
+        }
+
+        .label-interphase, .label-prophase {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .label-interphase { animation: fade-out 8s ease-in-out infinite; }
+        .label-prophase { animation: fade-in 8s ease-in-out infinite; }
+
+        @keyframes fade-out {
+            0%, 40% { opacity: 1; }
+            50%, 100% { opacity: 0; }
+        }
+        @keyframes fade-in {
+            0%, 40% { opacity: 0; }
+            50%, 100% { opacity: 1; }
+        }
+
+        .stage {
+            width: 500px;
+            height: 420px;
+            background: #0f0f23;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        /* Container for the cell */
+        .cell-container {
+            position: relative;
+            width: 300px;
+            height: 240px;
+        }
+
+        .cell-membrane {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+        }
+
+        .nucleus {
+            position: absolute;
+            width: 120px;
+            height: 120px;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            animation: nucleus-fade 8s ease-in-out infinite;
+        }
+
+        @keyframes nucleus-fade {
+            0%, 40% { opacity: 1; }
+            60%, 100% { opacity: 0.2; }
+        }
+
+        .chromatin {
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            animation: fade-out 8s ease-in-out infinite;
+        }
+
+        /* Chromosomes */
+        .chromosome {
+            position: absolute;
+            width: 35px;
+            height: 45px;
+            opacity: 0;
+            animation: chromosome-appear 8s ease-in-out infinite;
+        }
+
+        @keyframes chromosome-appear {
+            0%, 35% { opacity: 0; transform: scale(0.3); }
+            55%, 100% { opacity: 1; transform: scale(1); }
+        }
+
+        .chr1 { top: 80px; left: 120px; }
+        .chr2 { top: 95px; left: 155px; }
+        .chr3 { top: 130px; left: 115px; }
+        .chr4 { top: 140px; left: 160px; }
+
+        /* Centrosomes */
+        .centrosome {
+            position: absolute;
+            width: 24px;
+            height: 24px;
+        }
+
+        .centro1 {
+            top: 50%;
+            right: 20px;
+            transform: translateY(-50%);
+            animation: centro1-move 8s ease-in-out infinite;
+        }
+
+        .centro2 {
+            top: 50%;
+            right: 20px;
+            transform: translateY(-50%);
+            opacity: 0;
+            animation: centro2-move 8s ease-in-out infinite;
+        }
+
+        @keyframes centro1-move {
+            0%, 30% { top: 50%; right: 20px; transform: translateY(-50%); }
+            60%, 100% { top: -5px; right: 138px; transform: translateY(0); }
+        }
+
+        @keyframes centro2-move {
+            0%, 30% { opacity: 0; bottom: auto; top: 50%; right: 20px; }
+            40% { opacity: 1; }
+            60%, 100% { opacity: 1; top: auto; bottom: -5px; right: 138px; }
+        }
+
+        /* Spindle fibers */
+        .spindle {
+            position: absolute;
+            width: 160px;
+            height: 260px;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            opacity: 0;
+            animation: spindle-appear 8s ease-in-out infinite;
+        }
+
+        @keyframes spindle-appear {
+            0%, 50% { opacity: 0; }
+            70%, 100% { opacity: 0.7; }
+        }
+
+        /* Info and controls */
+        .info {
+            margin-top: 20px;
+            max-width: 500px;
+            text-align: center;
+            color: #a0a0a0;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .controls {
+            margin-top: 20px;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            background: #6c5ce7;
+            color: white;
+        }
+
+        button:hover { background: #5b4cdb; }
+
+        .phase-dots {
+            display: flex;
+            gap: 8px;
+            margin-top: 20px;
+        }
+
+        .dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #444;
+        }
+
+        .dot:nth-child(1) { animation: dot-active 8s ease-in-out infinite; }
+        .dot:nth-child(2) { animation: dot-active 8s ease-in-out infinite; animation-delay: 4s; }
+
+        @keyframes dot-active {
+            0%, 45% { background: #6c5ce7; box-shadow: 0 0 8px #6c5ce7; }
+            50%, 100% { background: #444; box-shadow: none; }
+        }
+    </style>
+</head>
+<body>
+    <h1>Cell Cycle Animation</h1>
+
+    <div class="phase-label">
+        <span class="label-interphase">INTERPHASE</span>
+        <span class="label-prophase">PROPHASE</span>
+    </div>
+
+    <div class="stage">
+        <div class="cell-container">
+            <!-- Cell membrane -->
+            <img src="cell-assets/cell-membrane.svg" class="cell-membrane" alt="cell">
+
+            <!-- Nucleus -->
+            <img src="cell-assets/nucleus.svg" class="nucleus" alt="nucleus">
+
+            <!-- Chromatin (loose DNA) -->
+            <img src="cell-assets/chromatin.svg" class="chromatin" alt="chromatin">
+
+            <!-- Chromosomes (appear in prophase) -->
+            <img src="cell-assets/chromosome.svg" class="chromosome chr1" alt="chromosome">
+            <img src="cell-assets/chromosome.svg" class="chromosome chr2" alt="chromosome">
+            <img src="cell-assets/chromosome.svg" class="chromosome chr3" alt="chromosome">
+            <img src="cell-assets/chromosome.svg" class="chromosome chr4" alt="chromosome">
+
+            <!-- Centrosomes -->
+            <img src="cell-assets/centrosome.svg" class="centrosome centro1" alt="centrosome">
+            <img src="cell-assets/centrosome.svg" class="centrosome centro2" alt="centrosome">
+
+            <!-- Spindle fibers -->
+            <img src="cell-assets/spindle-fibers.svg" class="spindle" alt="spindle">
+        </div>
+    </div>
+
+    <div class="phase-dots">
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+    </div>
+
+    <div class="info">
+        <strong>Interphase:</strong> Cell grows, DNA replicates as loose chromatin.<br>
+        <strong>Prophase:</strong> Chromatin condenses into chromosomes. Nuclear membrane dissolves. Spindle forms.
+    </div>
+
+    <div class="controls">
+        <button onclick="location.reload()">Restart</button>
+    </div>
+</body>
+</html>
