@@ -20,163 +20,306 @@
 
         h1 { margin-bottom: 10px; }
 
+        /* === PHASE LABELS === */
         .phase-label {
             font-size: 24px;
             color: #88c0d0;
             margin-bottom: 20px;
             position: relative;
             height: 30px;
+            width: 250px;
         }
 
-        .label-interphase, .label-prophase {
+        .phase-label span {
             position: absolute;
             left: 50%;
             transform: translateX(-50%);
+            opacity: 0;
+            white-space: nowrap;
         }
 
-        .label-interphase { animation: fade-out 8s ease-in-out infinite; }
-        .label-prophase { animation: fade-in 8s ease-in-out infinite; }
+        /* 20s total: 4s each phase */
+        .label-interphase { animation: label1 20s ease-in-out infinite; }
+        .label-prophase { animation: label2 20s ease-in-out infinite; }
+        .label-metaphase { animation: label3 20s ease-in-out infinite; }
+        .label-anaphase { animation: label4 20s ease-in-out infinite; }
+        .label-telophase { animation: label5 20s ease-in-out infinite; }
 
-        @keyframes fade-out {
-            0%, 40% { opacity: 1; }
-            50%, 100% { opacity: 0; }
-        }
-        @keyframes fade-in {
-            0%, 40% { opacity: 0; }
-            50%, 100% { opacity: 1; }
-        }
+        @keyframes label1 { 0%, 15% { opacity: 1; } 20%, 100% { opacity: 0; } }
+        @keyframes label2 { 0%, 15% { opacity: 0; } 20%, 35% { opacity: 1; } 40%, 100% { opacity: 0; } }
+        @keyframes label3 { 0%, 35% { opacity: 0; } 40%, 55% { opacity: 1; } 60%, 100% { opacity: 0; } }
+        @keyframes label4 { 0%, 55% { opacity: 0; } 60%, 75% { opacity: 1; } 80%, 100% { opacity: 0; } }
+        @keyframes label5 { 0%, 75% { opacity: 0; } 80%, 100% { opacity: 1; } }
 
+        /* === STAGE === */
         .stage {
-            width: 500px;
-            height: 420px;
+            width: 550px;
+            height: 450px;
             background: #0f0f23;
             border-radius: 20px;
             display: flex;
             align-items: center;
             justify-content: center;
             position: relative;
+            overflow: hidden;
         }
 
-        /* Container for the cell */
         .cell-container {
             position: relative;
-            width: 300px;
-            height: 240px;
+            width: 340px;
+            height: 280px;
         }
 
+        /* === CELL MEMBRANE === */
         .cell-membrane {
             position: absolute;
             width: 100%;
             height: 100%;
+            animation: cell-divide 20s ease-in-out infinite;
         }
 
-        .nucleus {
+        @keyframes cell-divide {
+            0%, 75% { border-radius: 50%; }
+            90%, 100% { border-radius: 50% 50% 50% 50% / 35% 35% 35% 35%; }
+        }
+
+        /* Cleavage furrow */
+        .furrow {
             position: absolute;
-            width: 120px;
-            height: 120px;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            animation: nucleus-fade 8s ease-in-out infinite;
+            width: 8px;
+            height: 0;
+            background: #0f0f23;
+            opacity: 0;
+            animation: furrow-pinch 20s ease-in-out infinite;
+            z-index: 10;
         }
 
-        @keyframes nucleus-fade {
-            0%, 40% { opacity: 1; }
-            60%, 100% { opacity: 0.2; }
+        @keyframes furrow-pinch {
+            0%, 75% { height: 0; opacity: 0; }
+            85% { height: 60%; opacity: 1; }
+            95%, 100% { height: 100%; opacity: 1; }
         }
 
-        .chromatin {
+        /* === NUCLEUS === */
+        .nucleus {
             position: absolute;
             width: 100px;
             height: 100px;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            animation: fade-out 8s ease-in-out infinite;
+            animation: nucleus-fade 20s ease-in-out infinite;
         }
 
-        /* Chromosomes */
+        @keyframes nucleus-fade {
+            0%, 15% { opacity: 1; }
+            25%, 100% { opacity: 0; }
+        }
+
+        /* New nuclei in telophase */
+        .new-nucleus {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            opacity: 0;
+        }
+
+        .nucleus-top {
+            top: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            animation: nucleus-top-appear 20s ease-in-out infinite;
+        }
+
+        .nucleus-bottom {
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            animation: nucleus-bottom-appear 20s ease-in-out infinite;
+        }
+
+        @keyframes nucleus-top-appear {
+            0%, 75% { opacity: 0; }
+            85%, 100% { opacity: 1; }
+        }
+
+        @keyframes nucleus-bottom-appear {
+            0%, 75% { opacity: 0; }
+            85%, 100% { opacity: 1; }
+        }
+
+        /* === CHROMATIN === */
+        .chromatin {
+            position: absolute;
+            width: 80px;
+            height: 80px;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            animation: chromatin-fade 20s ease-in-out infinite;
+        }
+
+        @keyframes chromatin-fade {
+            0%, 12% { opacity: 1; }
+            20%, 100% { opacity: 0; }
+        }
+
+        /* === CHROMOSOMES (full X-shape) === */
         .chromosome {
             position: absolute;
             width: 35px;
             height: 45px;
             opacity: 0;
-            animation: chromosome-appear 8s ease-in-out infinite;
         }
 
-        @keyframes chromosome-appear {
-            0%, 35% { opacity: 0; transform: scale(0.3); }
-            55%, 100% { opacity: 1; transform: scale(1); }
+        .chr1 { animation: chr1-anim 20s ease-in-out infinite; }
+        .chr2 { animation: chr2-anim 20s ease-in-out infinite; }
+        .chr3 { animation: chr3-anim 20s ease-in-out infinite; }
+        .chr4 { animation: chr4-anim 20s ease-in-out infinite; }
+
+        /* Prophase -> Metaphase (horizontal alignment) -> fade at anaphase */
+        @keyframes chr1-anim {
+            0%, 15% { opacity: 0; top: 100px; left: 140px; transform: scale(0.3); }
+            25% { opacity: 1; top: 100px; left: 140px; transform: scale(1); }
+            45%, 55% { opacity: 1; top: 118px; left: 70px; transform: scale(1); }
+            60%, 100% { opacity: 0; top: 118px; left: 70px; transform: scale(1); }
+        }
+        @keyframes chr2-anim {
+            0%, 15% { opacity: 0; top: 115px; left: 175px; transform: scale(0.3); }
+            25% { opacity: 1; top: 115px; left: 175px; transform: scale(1); }
+            45%, 55% { opacity: 1; top: 118px; left: 120px; transform: scale(1); }
+            60%, 100% { opacity: 0; top: 118px; left: 120px; transform: scale(1); }
+        }
+        @keyframes chr3-anim {
+            0%, 15% { opacity: 0; top: 150px; left: 135px; transform: scale(0.3); }
+            25% { opacity: 1; top: 150px; left: 135px; transform: scale(1); }
+            45%, 55% { opacity: 1; top: 118px; left: 185px; transform: scale(1); }
+            60%, 100% { opacity: 0; top: 118px; left: 185px; transform: scale(1); }
+        }
+        @keyframes chr4-anim {
+            0%, 15% { opacity: 0; top: 160px; left: 180px; transform: scale(0.3); }
+            25% { opacity: 1; top: 160px; left: 180px; transform: scale(1); }
+            45%, 55% { opacity: 1; top: 118px; left: 235px; transform: scale(1); }
+            60%, 100% { opacity: 0; top: 118px; left: 235px; transform: scale(1); }
         }
 
-        .chr1 { top: 80px; left: 120px; }
-        .chr2 { top: 95px; left: 155px; }
-        .chr3 { top: 130px; left: 115px; }
-        .chr4 { top: 140px; left: 160px; }
+        /* === CHROMATIDS (separated - for anaphase) === */
+        .chromatid {
+            position: absolute;
+            width: 20px;
+            height: 40px;
+            opacity: 0;
+        }
 
-        /* Centrosomes */
+        /* Top chromatids moving up */
+        .cht-t1 { animation: cht-top1 20s ease-in-out infinite; }
+        .cht-t2 { animation: cht-top2 20s ease-in-out infinite; }
+        .cht-t3 { animation: cht-top3 20s ease-in-out infinite; }
+        .cht-t4 { animation: cht-top4 20s ease-in-out infinite; }
+
+        /* Bottom chromatids moving down */
+        .cht-b1 { animation: cht-bot1 20s ease-in-out infinite; }
+        .cht-b2 { animation: cht-bot2 20s ease-in-out infinite; }
+        .cht-b3 { animation: cht-bot3 20s ease-in-out infinite; }
+        .cht-b4 { animation: cht-bot4 20s ease-in-out infinite; }
+
+        /* Anaphase: appear at metaphase plate, move to poles */
+        @keyframes cht-top1 {
+            0%, 55% { opacity: 0; top: 118px; left: 78px; }
+            60% { opacity: 1; top: 118px; left: 78px; }
+            75%, 100% { opacity: 1; top: 35px; left: 78px; }
+        }
+        @keyframes cht-top2 {
+            0%, 55% { opacity: 0; top: 118px; left: 128px; }
+            60% { opacity: 1; top: 118px; left: 128px; }
+            75%, 100% { opacity: 1; top: 35px; left: 128px; }
+        }
+        @keyframes cht-top3 {
+            0%, 55% { opacity: 0; top: 118px; left: 193px; }
+            60% { opacity: 1; top: 118px; left: 193px; }
+            75%, 100% { opacity: 1; top: 35px; left: 193px; }
+        }
+        @keyframes cht-top4 {
+            0%, 55% { opacity: 0; top: 118px; left: 243px; }
+            60% { opacity: 1; top: 118px; left: 243px; }
+            75%, 100% { opacity: 1; top: 35px; left: 243px; }
+        }
+
+        @keyframes cht-bot1 {
+            0%, 55% { opacity: 0; top: 122px; left: 78px; }
+            60% { opacity: 1; top: 122px; left: 78px; }
+            75%, 100% { opacity: 1; top: 205px; left: 78px; }
+        }
+        @keyframes cht-bot2 {
+            0%, 55% { opacity: 0; top: 122px; left: 128px; }
+            60% { opacity: 1; top: 122px; left: 128px; }
+            75%, 100% { opacity: 1; top: 205px; left: 128px; }
+        }
+        @keyframes cht-bot3 {
+            0%, 55% { opacity: 0; top: 122px; left: 193px; }
+            60% { opacity: 1; top: 122px; left: 193px; }
+            75%, 100% { opacity: 1; top: 205px; left: 193px; }
+        }
+        @keyframes cht-bot4 {
+            0%, 55% { opacity: 0; top: 122px; left: 243px; }
+            60% { opacity: 1; top: 122px; left: 243px; }
+            75%, 100% { opacity: 1; top: 205px; left: 243px; }
+        }
+
+        /* === CENTROSOMES === */
         .centrosome {
             position: absolute;
             width: 24px;
             height: 24px;
         }
 
-        .centro1 {
-            top: 50%;
-            right: 20px;
-            transform: translateY(-50%);
-            animation: centro1-move 8s ease-in-out infinite;
-        }
-
-        .centro2 {
-            top: 50%;
-            right: 20px;
-            transform: translateY(-50%);
-            opacity: 0;
-            animation: centro2-move 8s ease-in-out infinite;
-        }
+        .centro1 { animation: centro1-move 20s ease-in-out infinite; }
+        .centro2 { animation: centro2-move 20s ease-in-out infinite; }
 
         @keyframes centro1-move {
-            0%, 30% { top: 50%; right: 20px; transform: translateY(-50%); }
-            60%, 100% { top: -5px; right: 138px; transform: translateY(0); }
+            0%, 12% { top: 50%; right: 30px; transform: translateY(-50%); }
+            25%, 100% { top: -5px; right: 158px; transform: translateY(0); }
         }
 
         @keyframes centro2-move {
-            0%, 30% { opacity: 0; bottom: auto; top: 50%; right: 20px; }
-            40% { opacity: 1; }
-            60%, 100% { opacity: 1; top: auto; bottom: -5px; right: 138px; }
+            0%, 12% { opacity: 0; top: 50%; right: 30px; transform: translateY(-50%); }
+            18% { opacity: 1; }
+            25%, 100% { opacity: 1; top: auto; bottom: -5px; right: 158px; }
         }
 
-        /* Spindle fibers */
+        /* === SPINDLE FIBERS === */
         .spindle {
             position: absolute;
-            width: 160px;
-            height: 260px;
+            width: 200px;
+            height: 300px;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
             opacity: 0;
-            animation: spindle-appear 8s ease-in-out infinite;
+            animation: spindle-appear 20s ease-in-out infinite;
         }
 
         @keyframes spindle-appear {
-            0%, 50% { opacity: 0; }
-            70%, 100% { opacity: 0.7; }
+            0%, 20% { opacity: 0; }
+            30% { opacity: 0.4; }
+            45%, 75% { opacity: 1; }
+            85%, 100% { opacity: 0; }
         }
 
-        /* Info and controls */
+        /* === INFO === */
         .info {
             margin-top: 20px;
-            max-width: 500px;
+            max-width: 550px;
             text-align: center;
             color: #a0a0a0;
-            font-size: 14px;
-            line-height: 1.6;
+            font-size: 13px;
+            line-height: 1.5;
         }
 
-        .controls {
-            margin-top: 20px;
-        }
+        .controls { margin-top: 20px; }
 
         button {
             padding: 10px 20px;
@@ -187,9 +330,9 @@
             background: #6c5ce7;
             color: white;
         }
-
         button:hover { background: #5b4cdb; }
 
+        /* === PHASE DOTS === */
         .phase-dots {
             display: flex;
             gap: 8px;
@@ -203,13 +346,17 @@
             background: #444;
         }
 
-        .dot:nth-child(1) { animation: dot-active 8s ease-in-out infinite; }
-        .dot:nth-child(2) { animation: dot-active 8s ease-in-out infinite; animation-delay: 4s; }
+        .dot:nth-child(1) { animation: dot1 20s ease-in-out infinite; }
+        .dot:nth-child(2) { animation: dot2 20s ease-in-out infinite; }
+        .dot:nth-child(3) { animation: dot3 20s ease-in-out infinite; }
+        .dot:nth-child(4) { animation: dot4 20s ease-in-out infinite; }
+        .dot:nth-child(5) { animation: dot5 20s ease-in-out infinite; }
 
-        @keyframes dot-active {
-            0%, 45% { background: #6c5ce7; box-shadow: 0 0 8px #6c5ce7; }
-            50%, 100% { background: #444; box-shadow: none; }
-        }
+        @keyframes dot1 { 0%, 15% { background: #6c5ce7; box-shadow: 0 0 8px #6c5ce7; } 20%, 100% { background: #444; box-shadow: none; } }
+        @keyframes dot2 { 0%, 15% { background: #444; } 20%, 35% { background: #6c5ce7; box-shadow: 0 0 8px #6c5ce7; } 40%, 100% { background: #444; box-shadow: none; } }
+        @keyframes dot3 { 0%, 35% { background: #444; } 40%, 55% { background: #6c5ce7; box-shadow: 0 0 8px #6c5ce7; } 60%, 100% { background: #444; box-shadow: none; } }
+        @keyframes dot4 { 0%, 55% { background: #444; } 60%, 75% { background: #6c5ce7; box-shadow: 0 0 8px #6c5ce7; } 80%, 100% { background: #444; box-shadow: none; } }
+        @keyframes dot5 { 0%, 75% { background: #444; } 80%, 100% { background: #6c5ce7; box-shadow: 0 0 8px #6c5ce7; } }
     </style>
 </head>
 <body>
@@ -218,24 +365,45 @@
     <div class="phase-label">
         <span class="label-interphase">INTERPHASE</span>
         <span class="label-prophase">PROPHASE</span>
+        <span class="label-metaphase">METAPHASE</span>
+        <span class="label-anaphase">ANAPHASE</span>
+        <span class="label-telophase">TELOPHASE / CYTOKINESIS</span>
     </div>
 
     <div class="stage">
         <div class="cell-container">
-            <!-- Cell membrane -->
             <img src="cell-assets/cell-membrane.svg" class="cell-membrane" alt="cell">
 
-            <!-- Nucleus -->
+            <!-- Cleavage furrow for cytokinesis -->
+            <div class="furrow"></div>
+
+            <!-- Original nucleus (interphase) -->
             <img src="cell-assets/nucleus.svg" class="nucleus" alt="nucleus">
 
-            <!-- Chromatin (loose DNA) -->
+            <!-- New nuclei (telophase) -->
+            <img src="cell-assets/nucleus.svg" class="new-nucleus nucleus-top" alt="nucleus">
+            <img src="cell-assets/nucleus.svg" class="new-nucleus nucleus-bottom" alt="nucleus">
+
+            <!-- Chromatin (interphase) -->
             <img src="cell-assets/chromatin.svg" class="chromatin" alt="chromatin">
 
-            <!-- Chromosomes (appear in prophase) -->
+            <!-- Full chromosomes (prophase/metaphase) -->
             <img src="cell-assets/chromosome.svg" class="chromosome chr1" alt="chromosome">
             <img src="cell-assets/chromosome.svg" class="chromosome chr2" alt="chromosome">
             <img src="cell-assets/chromosome.svg" class="chromosome chr3" alt="chromosome">
             <img src="cell-assets/chromosome.svg" class="chromosome chr4" alt="chromosome">
+
+            <!-- Separated chromatids - TOP (anaphase/telophase) -->
+            <img src="cell-assets/chromatid.svg" class="chromatid cht-t1" alt="chromatid">
+            <img src="cell-assets/chromatid.svg" class="chromatid cht-t2" alt="chromatid">
+            <img src="cell-assets/chromatid.svg" class="chromatid cht-t3" alt="chromatid">
+            <img src="cell-assets/chromatid.svg" class="chromatid cht-t4" alt="chromatid">
+
+            <!-- Separated chromatids - BOTTOM (anaphase/telophase) -->
+            <img src="cell-assets/chromatid.svg" class="chromatid cht-b1" alt="chromatid">
+            <img src="cell-assets/chromatid.svg" class="chromatid cht-b2" alt="chromatid">
+            <img src="cell-assets/chromatid.svg" class="chromatid cht-b3" alt="chromatid">
+            <img src="cell-assets/chromatid.svg" class="chromatid cht-b4" alt="chromatid">
 
             <!-- Centrosomes -->
             <img src="cell-assets/centrosome.svg" class="centrosome centro1" alt="centrosome">
@@ -255,8 +423,11 @@
     </div>
 
     <div class="info">
-        <strong>Interphase:</strong> Cell grows, DNA replicates as loose chromatin.<br>
-        <strong>Prophase:</strong> Chromatin condenses into chromosomes. Nuclear membrane dissolves. Spindle forms.
+        <strong>Interphase:</strong> Cell grows, DNA replicates.<br>
+        <strong>Prophase:</strong> Chromosomes condense, nuclear membrane dissolves.<br>
+        <strong>Metaphase:</strong> Chromosomes align at equator.<br>
+        <strong>Anaphase:</strong> Sister chromatids separate, move to poles.<br>
+        <strong>Telophase/Cytokinesis:</strong> Nuclei reform, cell divides into two.
     </div>
 
     <div class="controls">

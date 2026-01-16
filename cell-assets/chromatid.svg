@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 50">
+    <!-- Single chromatid (half of X chromosome) -->
+    <ellipse cx="12" cy="15" rx="5" ry="14" fill="#d63031"/>
+    <ellipse cx="12" cy="35" rx="5" ry="14" fill="#d63031"/>
+    <!-- Centromere point -->
+    <circle cx="12" cy="25" r="3" fill="#ff7675"/>
+</svg>
