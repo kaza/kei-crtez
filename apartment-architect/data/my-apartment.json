@@ -8,7 +8,7 @@
       "interior": 0.12,
       "building": 0.25
     },
-    "orientation": "north-up"
+    "orientation": "south-up"
   },
   "rooms": [
     {
