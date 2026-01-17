@@ -1,0 +1,141 @@
+{
+  "meta": {
+    "name": "Almir's Apartment",
+    "units": "meters",
+    "scale": 50,
+    "wallThickness": {
+      "exterior": 0.3,
+      "interior": 0.12,
+      "building": 0.25
+    },
+    "orientation": "north-up"
+  },
+  "rooms": [
+    {
+      "id": "children_room",
+      "name": "Children's Room",
+      "type": "bedroom",
+      "bounds": {
+        "x": 0,
+        "y": 6,
+        "width": 4,
+        "height": 5
+      },
+      "walls": [
+        { "side": "north", "type": "interior" },
+        { "side": "south", "type": "exterior" },
+        { "side": "east", "type": "interior" },
+        { "side": "west", "type": "building" }
+      ],
+      "openings": [
+        {
+          "id": "door_children",
+          "type": "door",
+          "wall": "north",
+          "position": 1.5,
+          "width": 0.9,
+          "swing": "right-in",
+          "connectsTo": "hallway"
+        },
+        {
+          "id": "window_children",
+          "type": "window",
+          "wall": "south",
+          "position": 1.4,
+          "width": 1.2
+        }
+      ]
+    },
+    {
+      "id": "bedroom",
+      "name": "Bedroom",
+      "type": "bedroom",
+      "bounds": {
+        "x": 4,
+        "y": 5,
+        "width": 2.8,
+        "height": 6
+      },
+      "walls": [
+        { "side": "north", "type": "interior" },
+        { "side": "south", "type": "exterior" },
+        { "side": "east", "type": "building" },
+        { "side": "west", "type": "interior" }
+      ],
+      "openings": [
+        {
+          "id": "door_bedroom",
+          "type": "door",
+          "wall": "north",
+          "position": 0.5,
+          "width": 0.9,
+          "swing": "left-in",
+          "connectsTo": "hallway"
+        },
+        {
+          "id": "window_bedroom",
+          "type": "window",
+          "wall": "south",
+          "position": 0.8,
+          "width": 1.2
+        }
+      ]
+    },
+    {
+      "id": "bathroom",
+      "name": "Bathroom",
+      "type": "bathroom",
+      "bounds": {
+        "x": 0,
+        "y": 3.3,
+        "width": 1.9,
+        "height": 2.7
+      },
+      "walls": [
+        { "side": "north", "type": "interior" },
+        { "side": "south", "type": "interior" },
+        { "side": "east", "type": "interior" },
+        { "side": "west", "type": "building" }
+      ],
+      "openings": [
+        {
+          "id": "door_bathroom",
+          "type": "door",
+          "wall": "east",
+          "position": 0.9,
+          "width": 0.7,
+          "swing": "left-in",
+          "connectsTo": "hallway"
+        }
+      ]
+    },
+    {
+      "id": "living_room",
+      "name": "Living Room",
+      "type": "living",
+      "bounds": {
+        "x": 1.9,
+        "y": 0,
+        "width": 4.9,
+        "height": 5
+      },
+      "walls": [
+        { "side": "north", "type": "exterior" },
+        { "side": "south", "type": "interior" },
+        { "side": "east", "type": "building" },
+        { "side": "west", "type": "interior" }
+      ],
+      "openings": [
+        {
+          "id": "window_living_1",
+          "type": "window",
+          "wall": "north",
+          "position": 1.5,
+          "width": 2
+        }
+      ],
+      "_comment": "Dimensions TBD - please update"
+    }
+  ],
+  "furniture": []
+}

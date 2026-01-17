@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 40" width="200" height="40">
+  <!-- Dimension Line Component -->
+  <defs>
+    <symbol id="dimension-horizontal" viewBox="0 0 200 40">
+      <!-- Extension lines -->
+      <line x1="0" y1="0" x2="0" y2="30" stroke="#666" stroke-width="0.5"/>
+      <line x1="200" y1="0" x2="200" y2="30" stroke="#666" stroke-width="0.5"/>
+      <!-- Dimension line with arrows -->
+      <line x1="0" y1="25" x2="200" y2="25" stroke="#666" stroke-width="0.5"/>
+      <!-- Arrows -->
+      <polygon points="0,25 8,22 8,28" fill="#666"/>
+      <polygon points="200,25 192,22 192,28" fill="#666"/>
+      <!-- Text placeholder at center -->
+      <text x="100" y="20" text-anchor="middle" font-family="Arial" font-size="10" fill="#333">0.00</text>
+    </symbol>
+    <symbol id="dimension-vertical" viewBox="0 0 40 200">
+      <!-- Extension lines -->
+      <line x1="0" y1="0" x2="30" y2="0" stroke="#666" stroke-width="0.5"/>
+      <line x1="0" y1="200" x2="30" y2="200" stroke="#666" stroke-width="0.5"/>
+      <!-- Dimension line with arrows -->
+      <line x1="25" y1="0" x2="25" y2="200" stroke="#666" stroke-width="0.5"/>
+      <!-- Arrows -->
+      <polygon points="25,0 22,8 28,8" fill="#666"/>
+      <polygon points="25,200 22,192 28,192" fill="#666"/>
+    </symbol>
+  </defs>
+</svg>

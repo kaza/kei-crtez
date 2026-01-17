@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Apartment Floor Plan Renderer</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: #f5f5f5;
+      padding: 20px;
+    }
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+    h1 {
+      color: #333;
+      margin-bottom: 10px;
+      font-weight: 400;
+    }
+    .controls {
+      background: white;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .control-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .control-group label {
+      font-size: 14px;
+      color: #666;
+    }
+    .control-group input, .control-group select {
+      padding: 6px 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+    }
+    button {
+      background: #2563eb;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    button:hover { background: #1d4ed8; }
+    button.secondary {
+      background: #6b7280;
+    }
+    button.secondary:hover { background: #4b5563; }
+    .main-content {
+      display: grid;
+      grid-template-columns: 1fr 350px;
+      gap: 20px;
+    }
+    .drawing-container {
+      background: white;
+      border-radius: 8px;
+      padding: 20px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      overflow: auto;
+    }
+    #floor-plan {
+      border: 1px solid #e5e7eb;
+      background: white;
+    }
+    .sidebar {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+    .panel {
+      background: white;
+      border-radius: 8px;
+      padding: 15px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .panel h3 {
+      font-size: 14px;
+      font-weight: 600;
+      color: #374151;
+      margin-bottom: 12px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid #e5e7eb;
+    }
+    .stats-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .stat-item {
+      background: #f9fafb;
+      padding: 10px;
+      border-radius: 4px;
+    }
+    .stat-label {
+      font-size: 11px;
+      color: #6b7280;
+      text-transform: uppercase;
+    }
+    .stat-value {
+      font-size: 18px;
+      font-weight: 600;
+      color: #111827;
+    }
+    .room-list {
+      list-style: none;
+    }
+    .room-list li {
+      padding: 8px 0;
+      border-bottom: 1px solid #f3f4f6;
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+    }
+    .room-list li:last-child { border-bottom: none; }
+    .room-name { color: #374151; }
+    .room-area { color: #6b7280; }
+    #json-editor {
+      width: 100%;
+      height: 200px;
+      font-family: 'Monaco', 'Menlo', monospace;
+      font-size: 11px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      padding: 10px;
+      resize: vertical;
+    }
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+      font-size: 12px;
+    }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .legend-color {
+      width: 20px;
+      height: 10px;
+      border-radius: 2px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🏠 Apartment Floor Plan</h1>
+
+    <div class="controls">
+      <div class="control-group">
+        <label>Scale:</label>
+        <input type="number" id="scale" value="50" min="20" max="100" step="5">
+        <span>px/m</span>
+      </div>
+      <div class="control-group">
+        <label>Show:</label>
+        <label><input type="checkbox" id="show-dimensions" checked> Dimensions</label>
+        <label><input type="checkbox" id="show-labels" checked> Labels</label>
+        <label><input type="checkbox" id="show-area" checked> Area</label>
+        <label><input type="checkbox" id="show-grid"> Grid</label>
+      </div>
+      <button onclick="render()">Render</button>
+      <button class="secondary" onclick="exportSVG()">Export SVG</button>
+      <button class="secondary" onclick="exportDXF()">Export DXF</button>
+    </div>
+
+    <div class="main-content">
+      <div class="drawing-container">
+        <svg id="floor-plan" width="800" height="600"></svg>
+      </div>
+
+      <div class="sidebar">
+        <div class="panel">
+          <h3>Statistics</h3>
+          <div class="stats-grid">
+            <div class="stat-item">
+              <div class="stat-label">Total Area</div>
+              <div class="stat-value" id="total-area">0 m²</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-label">Rooms</div>
+              <div class="stat-value" id="room-count">0</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <h3>Rooms</h3>
+          <ul class="room-list" id="room-list"></ul>
+        </div>
+
+        <div class="panel">
+          <h3>Legend</h3>
+          <div class="legend">
+            <div class="legend-item">
+              <div class="legend-color" style="background: #1f2937; height: 6px;"></div>
+              <span>Building Wall</span>
+            </div>
+            <div class="legend-item">
+              <div class="legend-color" style="background: #374151; height: 4px;"></div>
+              <span>Exterior Wall</span>
+            </div>
+            <div class="legend-item">
+              <div class="legend-color" style="background: #6b7280; height: 2px;"></div>
+              <span>Interior Wall</span>
+            </div>
+            <div class="legend-item">
+              <div class="legend-color" style="background: #3b82f6;"></div>
+              <span>Window</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <h3>JSON Data</h3>
+          <textarea id="json-editor"></textarea>
+          <button onclick="loadFromEditor()" style="margin-top: 10px; width: 100%;">Apply Changes</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Apartment data - will be loaded from JSON file
+    let apartmentData = null;
+
+    // Wall thickness in meters
+    const WALL_THICKNESS = {
+      building: 0.25,
+      exterior: 0.20,
+      interior: 0.12,
+      none: 0
+    };
+
+    // Colors
+    const COLORS = {
+      wall: {
+        building: '#1f2937',
+        exterior: '#374151',
+        interior: '#6b7280',
+        none: 'transparent'
+      },
+      room: {
+        bedroom: '#fef3c7',
+        bathroom: '#dbeafe',
+        living: '#dcfce7',
+        kitchen: '#fce7f3',
+        hallway: '#f3f4f6',
+        storage: '#e5e7eb',
+        balcony: '#d1fae5',
+        other: '#f9fafb'
+      },
+      window: '#3b82f6',
+      door: '#374151',
+      dimension: '#9ca3af',
+      text: '#374151'
+    };
+
+    // Load apartment data
+    async function loadApartmentData() {
+      try {
+        const response = await fetch('../data/my-apartment.json');
+        apartmentData = await response.json();
+        document.getElementById('json-editor').value = JSON.stringify(apartmentData, null, 2);
+        document.getElementById('scale').value = apartmentData.meta.scale || 50;
+        render();
+      } catch (e) {
+        console.error('Failed to load apartment data:', e);
+        // Use embedded default if file not found
+        apartmentData = getDefaultData();
+        document.getElementById('json-editor').value = JSON.stringify(apartmentData, null, 2);
+        render();
+      }
+    }
+
+    function getDefaultData() {
+      return {
+        "meta": { "name": "Sample Apartment", "units": "meters", "scale": 50 },
+        "rooms": [
+          { "id": "room1", "name": "Room 1", "type": "bedroom", "bounds": { "x": 0, "y": 0, "width": 4, "height": 5 },
+            "walls": [{"side":"north","type":"exterior"},{"side":"south","type":"interior"},{"side":"east","type":"interior"},{"side":"west","type":"building"}],
+            "openings": [] }
+        ],
+        "furniture": []
+      };
+    }
+
+    function loadFromEditor() {
+      try {
+        apartmentData = JSON.parse(document.getElementById('json-editor').value);
+        render();
+      } catch (e) {
+        alert('Invalid JSON: ' + e.message);
+      }
+    }
+
+    // Calculate room area
+    function calculateArea(room) {
+      return room.bounds.width * room.bounds.height;
+    }
+
+    // Main render function
+    function render() {
+      if (!apartmentData) return;
+
+      const svg = document.getElementById('floor-plan');
+      const scale = parseInt(document.getElementById('scale').value) || 50;
+      const showDimensions = document.getElementById('show-dimensions').checked;
+      const showLabels = document.getElementById('show-labels').checked;
+      const showArea = document.getElementById('show-area').checked;
+      const showGrid = document.getElementById('show-grid').checked;
+
+      // Calculate bounds
+      let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+      apartmentData.rooms.forEach(room => {
+        minX = Math.min(minX, room.bounds.x);
+        minY = Math.min(minY, room.bounds.y);
+        maxX = Math.max(maxX, room.bounds.x + room.bounds.width);
+        maxY = Math.max(maxY, room.bounds.y + room.bounds.height);
+      });
+
+      const padding = 2; // meters
+      const width = (maxX - minX + padding * 2) * scale;
+      const height = (maxY - minY + padding * 2) * scale;
+      const offsetX = (padding - minX) * scale;
+      const offsetY = (padding - minY) * scale;
+
+      svg.setAttribute('width', width);
+      svg.setAttribute('height', height);
+
+      let svgContent = `<defs>
+        <pattern id="grid" width="${scale}" height="${scale}" patternUnits="userSpaceOnUse">
+          <path d="M ${scale} 0 L 0 0 0 ${scale}" fill="none" stroke="#e5e7eb" stroke-width="0.5"/>
+        </pattern>
+      </defs>`;
+
+      // Grid
+      if (showGrid) {
+        svgContent += `<rect width="100%" height="100%" fill="url(#grid)"/>`;
+      }
+
+      // Draw rooms (fills first)
+      apartmentData.rooms.forEach(room => {
+        const x = room.bounds.x * scale + offsetX;
+        const y = room.bounds.y * scale + offsetY;
+        const w = room.bounds.width * scale;
+        const h = room.bounds.height * scale;
+        const color = COLORS.room[room.type] || COLORS.room.other;
+
+        svgContent += `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="${color}" stroke="none"/>`;
+      });
+
+      // Draw walls
+      apartmentData.rooms.forEach(room => {
+        const x = room.bounds.x * scale + offsetX;
+        const y = room.bounds.y * scale + offsetY;
+        const w = room.bounds.width * scale;
+        const h = room.bounds.height * scale;
+
+        room.walls?.forEach(wall => {
+          const thickness = WALL_THICKNESS[wall.type] * scale;
+          const color = COLORS.wall[wall.type];
+          if (wall.type === 'none') return;
+
+          let wallPath = '';
+          switch (wall.side) {
+            case 'north':
+              wallPath = `M ${x} ${y} L ${x + w} ${y}`;
+              break;
+            case 'south':
+              wallPath = `M ${x} ${y + h} L ${x + w} ${y + h}`;
+              break;
+            case 'west':
+              wallPath = `M ${x} ${y} L ${x} ${y + h}`;
+              break;
+            case 'east':
+              wallPath = `M ${x + w} ${y} L ${x + w} ${y + h}`;
+              break;
+          }
+          svgContent += `<path d="${wallPath}" stroke="${color}" stroke-width="${thickness}" stroke-linecap="square"/>`;
+        });
+      });
+
+      // Draw openings (doors and windows)
+      apartmentData.rooms.forEach(room => {
+        const rx = room.bounds.x * scale + offsetX;
+        const ry = room.bounds.y * scale + offsetY;
+        const rw = room.bounds.width * scale;
+        const rh = room.bounds.height * scale;
+
+        room.openings?.forEach(opening => {
+          const pos = opening.position * scale;
+          const openingWidth = opening.width * scale;
+
+          let ox, oy, ow, oh;
+          let isHorizontal = opening.wall === 'north' || opening.wall === 'south';
+
+          switch (opening.wall) {
+            case 'north':
+              ox = rx + pos; oy = ry - 5; ow = openingWidth; oh = 10;
+              break;
+            case 'south':
+              ox = rx + pos; oy = ry + rh - 5; ow = openingWidth; oh = 10;
+              break;
+            case 'west':
+              ox = rx - 5; oy = ry + pos; ow = 10; oh = openingWidth;
+              break;
+            case 'east':
+              ox = rx + rw - 5; oy = ry + pos; ow = 10; oh = openingWidth;
+              break;
+          }
+
+          if (opening.type === 'window') {
+            // Window: white gap with blue glass indication
+            svgContent += `<rect x="${ox}" y="${oy}" width="${ow}" height="${oh}" fill="white"/>`;
+            if (isHorizontal) {
+              svgContent += `<line x1="${ox}" y1="${oy + oh/2}" x2="${ox + ow}" y2="${oy + oh/2}" stroke="${COLORS.window}" stroke-width="3"/>`;
+              svgContent += `<line x1="${ox}" y1="${oy}" x2="${ox}" y2="${oy + oh}" stroke="${COLORS.wall.interior}" stroke-width="2"/>`;
+              svgContent += `<line x1="${ox + ow}" y1="${oy}" x2="${ox + ow}" y2="${oy + oh}" stroke="${COLORS.wall.interior}" stroke-width="2"/>`;
+            } else {
+              svgContent += `<line x1="${ox + ow/2}" y1="${oy}" x2="${ox + ow/2}" y2="${oy + oh}" stroke="${COLORS.window}" stroke-width="3"/>`;
+              svgContent += `<line x1="${ox}" y1="${oy}" x2="${ox + ow}" y2="${oy}" stroke="${COLORS.wall.interior}" stroke-width="2"/>`;
+              svgContent += `<line x1="${ox}" y1="${oy + oh}" x2="${ox + ow}" y2="${oy + oh}" stroke="${COLORS.wall.interior}" stroke-width="2"/>`;
+            }
+          } else if (opening.type === 'door') {
+            // Door: white gap with swing arc
+            svgContent += `<rect x="${ox}" y="${oy}" width="${ow}" height="${oh}" fill="white"/>`;
+
+            // Draw door swing
+            const doorWidth = openingWidth;
+            let arcPath = '';
+            const swing = opening.swing || 'right-in';
+
+            if (isHorizontal) {
+              if (swing.includes('right')) {
+                if (opening.wall === 'north') {
+                  arcPath = `M ${ox + ow} ${oy + oh/2} A ${doorWidth} ${doorWidth} 0 0 1 ${ox + ow - doorWidth} ${oy + oh/2 + doorWidth}`;
+                  svgContent += `<line x1="${ox + ow}" y1="${oy + oh/2}" x2="${ox + ow - doorWidth}" y2="${oy + oh/2 + doorWidth}" stroke="${COLORS.door}" stroke-width="1.5"/>`;
+                } else {
+                  arcPath = `M ${ox + ow} ${oy + oh/2} A ${doorWidth} ${doorWidth} 0 0 0 ${ox + ow - doorWidth} ${oy + oh/2 - doorWidth}`;
+                  svgContent += `<line x1="${ox + ow}" y1="${oy + oh/2}" x2="${ox + ow - doorWidth}" y2="${oy + oh/2 - doorWidth}" stroke="${COLORS.door}" stroke-width="1.5"/>`;
+                }
+              } else {
+                if (opening.wall === 'north') {
+                  arcPath = `M ${ox} ${oy + oh/2} A ${doorWidth} ${doorWidth} 0 0 0 ${ox + doorWidth} ${oy + oh/2 + doorWidth}`;
+                  svgContent += `<line x1="${ox}" y1="${oy + oh/2}" x2="${ox + doorWidth}" y2="${oy + oh/2 + doorWidth}" stroke="${COLORS.door}" stroke-width="1.5"/>`;
+                } else {
+                  arcPath = `M ${ox} ${oy + oh/2} A ${doorWidth} ${doorWidth} 0 0 1 ${ox + doorWidth} ${oy + oh/2 - doorWidth}`;
+                  svgContent += `<line x1="${ox}" y1="${oy + oh/2}" x2="${ox + doorWidth}" y2="${oy + oh/2 - doorWidth}" stroke="${COLORS.door}" stroke-width="1.5"/>`;
+                }
+              }
+            } else {
+              // Vertical walls
+              if (swing.includes('right')) {
+                if (opening.wall === 'west') {
+                  arcPath = `M ${ox + ow/2} ${oy + oh} A ${doorWidth} ${doorWidth} 0 0 0 ${ox + ow/2 + doorWidth} ${oy + oh - doorWidth}`;
+                  svgContent += `<line x1="${ox + ow/2}" y1="${oy + oh}" x2="${ox + ow/2 + doorWidth}" y2="${oy + oh - doorWidth}" stroke="${COLORS.door}" stroke-width="1.5"/>`;
+                } else {
+                  arcPath = `M ${ox + ow/2} ${oy + oh} A ${doorWidth} ${doorWidth} 0 0 1 ${ox + ow/2 - doorWidth} ${oy + oh - doorWidth}`;
+                  svgContent += `<line x1="${ox + ow/2}" y1="${oy + oh}" x2="${ox + ow/2 - doorWidth}" y2="${oy + oh - doorWidth}" stroke="${COLORS.door}" stroke-width="1.5"/>`;
+                }
+              } else {
+                if (opening.wall === 'west') {
+                  arcPath = `M ${ox + ow/2} ${oy} A ${doorWidth} ${doorWidth} 0 0 1 ${ox + ow/2 + doorWidth} ${oy + doorWidth}`;
+                  svgContent += `<line x1="${ox + ow/2}" y1="${oy}" x2="${ox + ow/2 + doorWidth}" y2="${oy + doorWidth}" stroke="${COLORS.door}" stroke-width="1.5"/>`;
+                } else {
+                  arcPath = `M ${ox + ow/2} ${oy} A ${doorWidth} ${doorWidth} 0 0 0 ${ox + ow/2 - doorWidth} ${oy + doorWidth}`;
+                  svgContent += `<line x1="${ox + ow/2}" y1="${oy}" x2="${ox + ow/2 - doorWidth}" y2="${oy + doorWidth}" stroke="${COLORS.door}" stroke-width="1.5"/>`;
+                }
+              }
+            }
+            svgContent += `<path d="${arcPath}" fill="none" stroke="${COLORS.door}" stroke-width="1" stroke-dasharray="3,2"/>`;
+          } else if (opening.type === 'opening') {
+            // Just a gap
+            svgContent += `<rect x="${ox}" y="${oy}" width="${ow}" height="${oh}" fill="white"/>`;
+          }
+        });
+      });
+
+      // Draw labels and dimensions
+      apartmentData.rooms.forEach(room => {
+        const x = room.bounds.x * scale + offsetX;
+        const y = room.bounds.y * scale + offsetY;
+        const w = room.bounds.width * scale;
+        const h = room.bounds.height * scale;
+        const cx = x + w / 2;
+        const cy = y + h / 2;
+        const area = calculateArea(room);
+
+        if (showLabels) {
+          svgContent += `<text x="${cx}" y="${cy - 8}" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="600" fill="${COLORS.text}">${room.name}</text>`;
+        }
+
+        if (showArea) {
+          svgContent += `<text x="${cx}" y="${cy + 8}" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="${COLORS.dimension}">${area.toFixed(1)} m²</text>`;
+        }
+
+        if (showDimensions) {
+          // Width dimension (top)
+          svgContent += `
+            <g class="dimension">
+              <line x1="${x}" y1="${y - 25}" x2="${x}" y2="${y - 15}" stroke="${COLORS.dimension}" stroke-width="0.5"/>
+              <line x1="${x + w}" y1="${y - 25}" x2="${x + w}" y2="${y - 15}" stroke="${COLORS.dimension}" stroke-width="0.5"/>
+              <line x1="${x}" y1="${y - 20}" x2="${x + w}" y2="${y - 20}" stroke="${COLORS.dimension}" stroke-width="0.5"/>
+              <polygon points="${x},${y - 20} ${x + 5},${y - 22} ${x + 5},${y - 18}" fill="${COLORS.dimension}"/>
+              <polygon points="${x + w},${y - 20} ${x + w - 5},${y - 22} ${x + w - 5},${y - 18}" fill="${COLORS.dimension}"/>
+              <text x="${cx}" y="${y - 25}" text-anchor="middle" font-family="Arial, sans-serif" font-size="9" fill="${COLORS.dimension}">${room.bounds.width.toFixed(2)}</text>
+            </g>
+          `;
+
+          // Height dimension (left)
+          svgContent += `
+            <g class="dimension">
+              <line x1="${x - 25}" y1="${y}" x2="${x - 15}" y2="${y}" stroke="${COLORS.dimension}" stroke-width="0.5"/>
+              <line x1="${x - 25}" y1="${y + h}" x2="${x - 15}" y2="${y + h}" stroke="${COLORS.dimension}" stroke-width="0.5"/>
+              <line x1="${x - 20}" y1="${y}" x2="${x - 20}" y2="${y + h}" stroke="${COLORS.dimension}" stroke-width="0.5"/>
+              <polygon points="${x - 20},${y} ${x - 22},${y + 5} ${x - 18},${y + 5}" fill="${COLORS.dimension}"/>
+              <polygon points="${x - 20},${y + h} ${x - 22},${y + h - 5} ${x - 18},${y + h - 5}" fill="${COLORS.dimension}"/>
+              <text x="${x - 30}" y="${cy}" text-anchor="middle" font-family="Arial, sans-serif" font-size="9" fill="${COLORS.dimension}" transform="rotate(-90, ${x - 30}, ${cy})">${room.bounds.height.toFixed(2)}</text>
+            </g>
+          `;
+        }
+      });
+
+      // Title block
+      svgContent += `
+        <g class="title-block">
+          <text x="${width - 20}" y="${height - 20}" text-anchor="end" font-family="Arial, sans-serif" font-size="10" fill="${COLORS.dimension}">${apartmentData.meta.name} | Scale 1:${Math.round(1000/scale)}</text>
+        </g>
+      `;
+
+      svg.innerHTML = svgContent;
+
+      // Update statistics
+      updateStats();
+    }
+
+    function updateStats() {
+      if (!apartmentData) return;
+
+      let totalArea = 0;
+      const roomList = document.getElementById('room-list');
+      roomList.innerHTML = '';
+
+      apartmentData.rooms.forEach(room => {
+        const area = calculateArea(room);
+        totalArea += area;
+        roomList.innerHTML += `<li><span class="room-name">${room.name}</span><span class="room-area">${area.toFixed(1)} m²</span></li>`;
+      });
+
+      document.getElementById('total-area').textContent = totalArea.toFixed(1) + ' m²';
+      document.getElementById('room-count').textContent = apartmentData.rooms.length;
+    }
+
+    function exportSVG() {
+      const svg = document.getElementById('floor-plan');
+      const svgData = new XMLSerializer().serializeToString(svg);
+      const blob = new Blob([svgData], { type: 'image/svg+xml' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${apartmentData.meta.name.replace(/\s+/g, '_')}_floor_plan.svg`;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function exportDXF() {
+      // Generate simple DXF
+      let dxf = `0\nSECTION\n2\nHEADER\n0\nENDSEC\n0\nSECTION\n2\nENTITIES\n`;
+
+      apartmentData.rooms.forEach(room => {
+        const x = room.bounds.x * 1000; // Convert to mm
+        const y = room.bounds.y * 1000;
+        const w = room.bounds.width * 1000;
+        const h = room.bounds.height * 1000;
+
+        // Draw room as polyline
+        dxf += `0\nLWPOLYLINE\n8\nROOMS\n90\n4\n70\n1\n`;
+        dxf += `10\n${x}\n20\n${y}\n`;
+        dxf += `10\n${x + w}\n20\n${y}\n`;
+        dxf += `10\n${x + w}\n20\n${y + h}\n`;
+        dxf += `10\n${x}\n20\n${y + h}\n`;
+
+        // Add room label
+        const cx = x + w / 2;
+        const cy = y + h / 2;
+        dxf += `0\nTEXT\n8\nLABELS\n10\n${cx}\n20\n${cy}\n40\n150\n1\n${room.name}\n`;
+      });
+
+      dxf += `0\nENDSEC\n0\nEOF\n`;
+
+      const blob = new Blob([dxf], { type: 'application/dxf' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${apartmentData.meta.name.replace(/\s+/g, '_')}_floor_plan.dxf`;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    // Event listeners
+    document.getElementById('scale').addEventListener('change', render);
+    document.getElementById('show-dimensions').addEventListener('change', render);
+    document.getElementById('show-labels').addEventListener('change', render);
+    document.getElementById('show-area').addEventListener('change', render);
+    document.getElementById('show-grid').addEventListener('change', render);
+
+    // Initialize
+    loadApartmentData();
+  </script>
+</body>
+</html>

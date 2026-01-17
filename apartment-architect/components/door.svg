@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <!-- Door Component - 0.9m standard door -->
+  <!-- Origin at hinge point, opens counterclockwise by default -->
+  <defs>
+    <symbol id="door-left" viewBox="0 0 90 90">
+      <!-- Door opening in wall -->
+      <line x1="0" y1="0" x2="90" y2="0" stroke="#fff" stroke-width="8"/>
+      <!-- Door panel -->
+      <line x1="0" y1="0" x2="0" y2="90" stroke="#333" stroke-width="2"/>
+      <!-- Swing arc -->
+      <path d="M 0 90 A 90 90 0 0 1 90 0" fill="none" stroke="#333" stroke-width="1" stroke-dasharray="4,2"/>
+    </symbol>
+    <symbol id="door-right" viewBox="0 0 90 90">
+      <!-- Door opening in wall -->
+      <line x1="0" y1="0" x2="90" y2="0" stroke="#fff" stroke-width="8"/>
+      <!-- Door panel -->
+      <line x1="90" y1="0" x2="90" y2="90" stroke="#333" stroke-width="2"/>
+      <!-- Swing arc -->
+      <path d="M 90 90 A 90 90 0 0 0 0 0" fill="none" stroke="#333" stroke-width="1" stroke-dasharray="4,2"/>
+    </symbol>
+  </defs>
+</svg>

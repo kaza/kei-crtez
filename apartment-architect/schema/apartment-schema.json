@@ -1,0 +1,116 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Apartment Floor Plan Schema",
+  "description": "Schema for describing apartment layouts in a machine-readable format",
+  "type": "object",
+  "required": ["meta", "rooms"],
+  "properties": {
+    "meta": {
+      "type": "object",
+      "required": ["name", "units", "scale"],
+      "properties": {
+        "name": { "type": "string", "description": "Apartment name/identifier" },
+        "units": { "type": "string", "enum": ["meters", "feet"], "default": "meters" },
+        "scale": { "type": "number", "description": "Pixels per unit (e.g., 50 = 50px per meter)", "default": 50 },
+        "wallThickness": {
+          "type": "object",
+          "properties": {
+            "exterior": { "type": "number", "default": 0.3 },
+            "interior": { "type": "number", "default": 0.15 },
+            "building": { "type": "number", "default": 0.4 }
+          }
+        },
+        "orientation": {
+          "type": "string",
+          "enum": ["north-up", "south-up", "east-up", "west-up"],
+          "default": "north-up",
+          "description": "Which direction is 'up' on the drawing"
+        }
+      }
+    },
+    "rooms": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "name", "type", "bounds"],
+        "properties": {
+          "id": { "type": "string", "description": "Unique room identifier" },
+          "name": { "type": "string", "description": "Display name" },
+          "type": {
+            "type": "string",
+            "enum": ["bedroom", "bathroom", "living", "kitchen", "hallway", "storage", "balcony", "other"]
+          },
+          "bounds": {
+            "type": "object",
+            "required": ["x", "y", "width", "height"],
+            "properties": {
+              "x": { "type": "number", "description": "X position (from left)" },
+              "y": { "type": "number", "description": "Y position (from top)" },
+              "width": { "type": "number", "description": "Room width" },
+              "height": { "type": "number", "description": "Room height/depth" }
+            }
+          },
+          "walls": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["side", "type"],
+              "properties": {
+                "side": { "type": "string", "enum": ["north", "south", "east", "west"] },
+                "type": { "type": "string", "enum": ["exterior", "interior", "building", "none"] }
+              }
+            }
+          },
+          "openings": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["type", "wall", "position", "width"],
+              "properties": {
+                "id": { "type": "string" },
+                "type": { "type": "string", "enum": ["door", "window", "opening"] },
+                "wall": { "type": "string", "enum": ["north", "south", "east", "west"] },
+                "position": { "type": "number", "description": "Distance from wall start (left/top)" },
+                "width": { "type": "number", "description": "Opening width" },
+                "swing": {
+                  "type": "string",
+                  "enum": ["left-in", "left-out", "right-in", "right-out"],
+                  "description": "Door swing direction"
+                },
+                "connectsTo": { "type": "string", "description": "ID of connected room" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "furniture": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "type", "roomId", "position", "dimensions"],
+        "properties": {
+          "id": { "type": "string" },
+          "type": { "type": "string" },
+          "name": { "type": "string" },
+          "roomId": { "type": "string" },
+          "position": {
+            "type": "object",
+            "properties": {
+              "x": { "type": "number" },
+              "y": { "type": "number" },
+              "rotation": { "type": "number", "default": 0 }
+            }
+          },
+          "dimensions": {
+            "type": "object",
+            "properties": {
+              "width": { "type": "number" },
+              "height": { "type": "number" }
+            }
+          }
+        }
+      }
+    }
+  }
+}
