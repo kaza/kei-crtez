@@ -540,15 +540,22 @@
         const cy = y + h / 2;
         const area = calculateArea(room);
 
+        // Counter-rotation for text to keep it readable
+        const textRotation = compassRotation ? `transform="rotate(${-compassRotation}, ${cx}, ${cy})"` : '';
+
         if (showLabels) {
-          svgContent += `<text x="${cx}" y="${cy - 8}" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="600" fill="${COLORS.text}">${room.name}</text>`;
+          svgContent += `<text x="${cx}" y="${cy - 8}" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="600" fill="${COLORS.text}" ${textRotation}>${room.name}</text>`;
         }
 
         if (showArea) {
-          svgContent += `<text x="${cx}" y="${cy + 8}" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="${COLORS.dimension}">${area.toFixed(1)} m²</text>`;
+          svgContent += `<text x="${cx}" y="${cy + 8}" text-anchor="middle" font-family="Arial, sans-serif" font-size="10" fill="${COLORS.dimension}" ${textRotation}>${area.toFixed(1)} m²</text>`;
         }
 
         if (showDimensions) {
+          // Dimension text positions
+          const dimTopY = y - 25;
+          const dimLeftX = x - 30;
+
           // Width dimension (top)
           svgContent += `
             <g class="dimension">
@@ -557,7 +564,7 @@
               <line x1="${x}" y1="${y - 20}" x2="${x + w}" y2="${y - 20}" stroke="${COLORS.dimension}" stroke-width="0.5"/>
               <polygon points="${x},${y - 20} ${x + 5},${y - 22} ${x + 5},${y - 18}" fill="${COLORS.dimension}"/>
               <polygon points="${x + w},${y - 20} ${x + w - 5},${y - 22} ${x + w - 5},${y - 18}" fill="${COLORS.dimension}"/>
-              <text x="${cx}" y="${y - 25}" text-anchor="middle" font-family="Arial, sans-serif" font-size="9" fill="${COLORS.dimension}">${room.bounds.width.toFixed(2)}</text>
+              <text x="${cx}" y="${dimTopY}" text-anchor="middle" font-family="Arial, sans-serif" font-size="9" fill="${COLORS.dimension}" ${compassRotation ? `transform="rotate(${-compassRotation}, ${cx}, ${dimTopY})"` : ''}>${room.bounds.width.toFixed(2)}</text>
             </g>
           `;
 
@@ -569,7 +576,7 @@
               <line x1="${x - 20}" y1="${y}" x2="${x - 20}" y2="${y + h}" stroke="${COLORS.dimension}" stroke-width="0.5"/>
               <polygon points="${x - 20},${y} ${x - 22},${y + 5} ${x - 18},${y + 5}" fill="${COLORS.dimension}"/>
               <polygon points="${x - 20},${y + h} ${x - 22},${y + h - 5} ${x - 18},${y + h - 5}" fill="${COLORS.dimension}"/>
-              <text x="${x - 30}" y="${cy}" text-anchor="middle" font-family="Arial, sans-serif" font-size="9" fill="${COLORS.dimension}" transform="rotate(-90, ${x - 30}, ${cy})">${room.bounds.height.toFixed(2)}</text>
+              <text x="${dimLeftX}" y="${cy}" text-anchor="middle" font-family="Arial, sans-serif" font-size="9" fill="${COLORS.dimension}" transform="rotate(${-90 - compassRotation}, ${dimLeftX}, ${cy})">${room.bounds.height.toFixed(2)}</text>
             </g>
           `;
         }
